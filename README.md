@@ -2,4 +2,4 @@
 Escape Room Code Timer 
 
 
-Page on https://ahempi.github.io/escape-code-game/
+Visit https://ahempi.github.io/escape-code-game/
