@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Interface</title>
+    <style>
+      body {
+        background-color: black;
+        color: #00ff00;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .screen {
+        display: none;
+        text-align: center;
+      }
+      .active {
+        display: block;
+      }
+      input,
+      button {
+        font-size: 24px;
+        margin: 10px;
+        padding: 10px;
+      }
+      input[type="number"] {
+        width: 150px; /* Increased by 50% from a typical 100px width */
+      }
+      button {
+        background-color: #006400;
+        color: #00ff00;
+        border: none;
+        cursor: pointer;
+      }
+      #timer {
+        font-size: 272px;
+        margin: 20px 0;
+      }
+      #result {
+        font-size: 48px;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="screen1" class="screen active">
+      <h1>Game Master Setup</h1>
+      <input
+        type="number"
+        id="minutes"
+        placeholder="Minutes"
+        min="0"
+        max="59"
+      />
+      <input
+        type="number"
+        id="seconds"
+        placeholder="Seconds"
+        min="0"
+        max="59"
+      />
+      <input
+        type="text"
+        id="code"
+        placeholder="4-8 digit code"
+        minlength="4"
+        maxlength="8"
+        pattern="\d{4,8}"
+      />
+      <button onclick="setupGame()">NEXT</button>
+    </div>
+
+    <div id="screen2" class="screen">
+      <h1>Start Game</h1>
+      <button onclick="startGame()">START</button>
+    </div>
+
+    <div id="screen3" class="screen">
+      <div id="timer"></div>
+      <input type="text" id="userCode" placeholder="Enter code" />
+      <button onclick="submitCode()">SUBMIT</button>
+      <div id="result"></div>
+      <button id="tryAgain" onclick="resetGame()" style="display: none">
+        TRY ANOTHER ONE
+      </button>
+    </div>
+
+    <script>
+      let gameTime, gameCode, timerInterval;
+
+      function setupGame() {
+        const minutes = parseInt(document.getElementById("minutes").value) || 0;
+        const seconds = parseInt(document.getElementById("seconds").value) || 0;
+        gameTime = minutes * 60 + seconds;
+        gameCode = document.getElementById("code").value;
+
+        if (gameTime > 0 && gameCode.length >= 4 && gameCode.length <= 8) {
+          showScreen("screen2");
+        } else {
+          alert("Please enter valid time and code");
+        }
+      }
+
+      function startGame() {
+        showScreen("screen3");
+        startTimer();
+      }
+
+      function startTimer() {
+        updateTimerDisplay();
+        timerInterval = setInterval(() => {
+          gameTime--;
+          updateTimerDisplay();
+          if (gameTime <= 0) {
+            clearInterval(timerInterval);
+            showResult("FAILED");
+          }
+        }, 1000);
+      }
+
+      function updateTimerDisplay() {
+        const minutes = Math.floor(gameTime / 60);
+        const seconds = gameTime % 60;
+        document.getElementById("timer").textContent = `${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      function submitCode() {
+        const userCode = document.getElementById("userCode").value;
+        if (userCode === gameCode) {
+          clearInterval(timerInterval);
+          showResult("CORRECT");
+        }
+      }
+
+      function showResult(result) {
+        document.getElementById("result").textContent = result;
+        document.getElementById("tryAgain").style.display = "inline-block";
+      }
+
+      function resetGame() {
+        showScreen("screen1");
+        document.getElementById("result").textContent = "";
+        document.getElementById("tryAgain").style.display = "none";
+        document.getElementById("userCode").value = "";
+      }
+
+      function showScreen(screenId) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((screen) => screen.classList.remove("active"));
+        document.getElementById(screenId).classList.add("active");
+      }
+    </script>
+  </body>
+</html>
